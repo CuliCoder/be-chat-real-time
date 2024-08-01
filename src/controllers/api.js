@@ -107,6 +107,7 @@ const Login = async (req, res) => {
         httpOnly: true,
         maxAge: Number(process.env.maxAge_accessToken),
         secure: true,
+        sameSite: "Strict"
       })
       .cookie("refresh_token", response.refresh_token, {
         httpOnly: true,
@@ -114,6 +115,7 @@ const Login = async (req, res) => {
           Date.now() + Number(process.env.expires_refreshToken)
         ),
         secure: true,
+        sameSite: "Strict"
       })
       .status(200)
       .json({
