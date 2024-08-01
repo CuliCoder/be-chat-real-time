@@ -3,7 +3,7 @@ require("dotenv").config();
 const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USER,
-  process.env.DB_PASS,
+  process.env.DB_PASS || "Hdxg6xLN3VjDn8zZDWaK",
   null,
   {
     host: process.env.DB_HOST,
