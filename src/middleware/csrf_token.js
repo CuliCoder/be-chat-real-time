@@ -14,7 +14,8 @@ export const csrfMiddleware = (req, res, next) => {
   if (req.method === "GET") {
     const csrfToken = crypto.randomBytes(32).toString("hex");
     res.cookie("_csrf", csrfToken, {
-      sameSite: "Lax", // Hoặc 'Lax', tùy thuộc vào yêu cầu của bạn
+      sameSite: "None",
+      secure: true, // Hoặc 'Lax', tùy thuộc vào yêu cầu của bạn
     });
     res.locals.csrfToken = csrfToken; // Để có thể gửi token trong response nếu cần
   }
