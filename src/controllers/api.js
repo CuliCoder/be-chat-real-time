@@ -147,6 +147,7 @@ const refreshToken = async (req, res) => {
         httpOnly: true,
         maxAge: Number(process.env.maxAge_accessToken),
         secure: true,
+        sameSite: "None"
       })
       .status(200)
       .json({
