@@ -1,4 +1,5 @@
 import crypto from "crypto";
+require("dotenv").config();
 export const csrfMiddleware = (req, res, next) => {
   // Xác thực yêu cầu POST, PUT, DELETE
   if (["POST", "PUT", "DELETE"].includes(req.method)) {
@@ -16,6 +17,7 @@ export const csrfMiddleware = (req, res, next) => {
     res.cookie("_csrf", csrfToken, {
       sameSite: "None",
       secure: true, // Hoặc 'Lax', tùy thuộc vào yêu cầu của bạn
+      domain:process.env.DOMAIN
     });
     res.locals.csrfToken = csrfToken; // Để có thể gửi token trong response nếu cần
   }
