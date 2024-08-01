@@ -181,6 +181,7 @@ const getTokenIo =  (req, res) => {
       .cookie("io_token", result, {
         httpOnly: true,
         secure: true,
+        sameSite: "None"
       })
       .status(200)
       .json({ message: "Token is exist" });
