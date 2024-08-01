@@ -11,8 +11,8 @@ const bodyParser = require("body-parser");
 const { csrfMiddleware } = require("./middleware/csrf_token");
 // const { Server } = require("socket.io");
 const SocketService = require("./services/SockerService");
-// const connection = require("./config/connection")
-// connection()
+const {connection} = require("./config/connection")
+connection()
 const cookie = require("cookie");
 require("dotenv").config();
 const port = process.env.PORT||8080;
