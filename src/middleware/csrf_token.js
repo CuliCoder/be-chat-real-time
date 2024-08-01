@@ -5,7 +5,6 @@ export const csrfMiddleware = (req, res, next) => {
   if (["POST", "PUT", "DELETE"].includes(req.method)) {
     const tokenFromClient = req.headers["x-csrf-token"] || req.body._csrf;
     const tokenFromCookie = req.cookies._csrf;
-
     if (!tokenFromCookie || tokenFromClient !== tokenFromCookie) {
       return res.status(403).send("Invalid CSRF token");
     }
@@ -13,11 +12,12 @@ export const csrfMiddleware = (req, res, next) => {
 
   // Tạo và gửi CSRF token cho các yêu cầu GET
   if (req.method === "GET") {
+    console.log("domain",process.env.DOMAIN)
     const csrfToken = crypto.randomBytes(32).toString("hex");
     res.cookie("_csrf", csrfToken, {
       sameSite: "None",
       secure: true, // Hoặc 'Lax', tùy thuộc vào yêu cầu của bạn
-      domain:process.env.DOMAIN
+      httpOnly: true,
     });
     res.locals.csrfToken = csrfToken; // Để có thể gửi token trong response nếu cần
   }

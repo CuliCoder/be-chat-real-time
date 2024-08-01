@@ -3,6 +3,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
 import { createServer } from "mysql2";
+const session = require('express-session');
 const initRoute = require("./routes/web");
 const initAPIRoute = require("./routes/api");
 const authAPIRoute = require("./routes/auth");
@@ -42,6 +43,15 @@ app.use(
     credentials: true,
   })
 );
+// app.use(session({
+//   secret: process.env.session_secret, // Thay đổi thành một chuỗi bí mật
+//   resave: false,
+//   saveUninitialized: true,
+//   cookie: {
+//     secure: false, // Chỉ sử dụng với HTTPS
+//     sameSite: 'None' // Cho phép gửi session ID trong các request cross-origin
+//   }
+// }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
