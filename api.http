@@ -1,0 +1,55 @@
+post  http://localhost:8080/api/v1/login
+Content-Type: application/json
+
+{
+    "account":"0966421165",
+    "password":"trungnc"
+}
+###
+get http://localhost:8080/api/v1/login
+Content-Type: application/json
+
+{
+    "account":"nguyencongtrung13@gmail.com",
+    "password":"A12345678"
+}
+###
+POST http://localhost:8080/api/v1/create-user
+Content-Type: application/json
+
+{
+    "firstname":"Nguyễn",
+    "surname":"Công Trung",
+    "email":"",
+    "tel":"0966421165",
+    "password":"trungnc",
+    "gender":"Male",
+    "DOB":"2004-07-16"
+}
+###
+GET http://localhost:8080/api/v1/
+###
+post http://localhost:8080/api/v1/message/dcm/send
+Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZnVsbG5hbWUiOiJOZ3V54buFbiBDw7RuZyBUcnVuZyIsImVtYWlsIjoiIiwidGVsIjoiMDk2NjQyMTE2NSIsImlhdCI6MTcyMTU1MTg5NywiZXhwIjoxNzIxNTUxODk5fQ.DAK2QaywAJmQvmlWaYczxVaovirbwW9uGeoDvfn7I8U
+Content-Type: application/json
+
+{
+    "message": " nè"
+}
+###
+post http://localhost:8080/api/v1/refresh-token
+# Authorization:Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZnVsbG5hbWUiOiJOZ3V54buFbiBDw7RuZyBUcnVuZyIsImVtYWlsIjoiIiwidGVsIjoiMDk2NjQyMTE2NSIsImlhdCI6MTcyMTU1MTg5NywiZXhwIjoxNzIxNTUxODk5fQ.DAK2QaywAJmQvmlWaYczxVaovirbwW9uGeoDvfn7I8U
+Content-Type: application/json
+
+{
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiZnVsbG5hbWUiOiJOZ3V54buFbiBDw7RuZyBUcnVuZyIsImVtYWlsIjoiIiwidGVsIjoiMDk2NjQyMTE2NSIsImlhdCI6MTcyMTU1MzkwNywiZXhwIjoxNzI0MTQ1OTA3fQ.rejR2ZTm-C9QJ5-wSoDrdxGGD0fuFgxLF3z0c5Nh5Qk"
+}
+###
+get http://localhost:8080/api/v1/find-user?text=0966421165
+# Content-Type: application/json
+
+# { 
+#     "params":{
+#         "text":"0966421165"
+#     }
+# }
