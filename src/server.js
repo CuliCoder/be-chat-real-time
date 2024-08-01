@@ -15,7 +15,7 @@ const SocketService = require("./services/SockerService");
 // connection()
 const cookie = require("cookie");
 require("dotenv").config();
-const port = process.env.PORT;
+const port = process.env.PORT||8080;
 const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http, {
