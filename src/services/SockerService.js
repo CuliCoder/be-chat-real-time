@@ -1,31 +1,23 @@
 import jwt from "jsonwebtoken";
-import {
-  addMessage,
-  set_is_seen,
-  get_new_message_of_list_conversation,
-  get_all_message_of_conversation,
-} from "./message";
-import user from "../models/user";
+import { addMessage, get_list_conversations_at_home } from "./message";
 global.users = {};
 class SocketService {
-  connection(socket) {
+  connection = (socket) => {
+    let current_conversation = {
+      conversation_id: null,
+      user_two: null,
+    };
     console.log("a user connected");
     socket.on("disconnect", () => {
       console.log("user disconnected");
     });
-    socket.on("send message", async ({ message, conversation_data }) => {
-      console.log("message: " + message);
-      const targetsocket = Object.keys(global.users).find(
-        (key) => global.users[key] === conversation_data.user_two
+    socket.on("send message", async (message) => {
+      console.log("message: " + current_conversation.conversation_id);
+      const targetsocket = this.findTargetSocketId(
+        current_conversation.user_two
       );
-      const conversation_id = conversation_data.conversation_id;
-      const isInRoom = io.sockets.adapter.rooms
-        .get(conversation_id)
-        .has(targetsocket);
-      console.log("isInRoom", isInRoom);
-      console.log("has user", io.sockets.adapter.rooms.has(3));
-      console.log("list user", io.sockets.adapter.rooms);
-      console.log("rooms", io.sockets.sockets.get(socket.id).rooms);
+      const conversation_id = current_conversation.conversation_id;
+      const isInRoom = this.IsInRoom(targetsocket, conversation_id);
       const is_seen = isInRoom ? true : false;
       const result = await addMessage(
         message,
@@ -33,7 +25,7 @@ class SocketService {
         false,
         false,
         global.users[socket.id],
-        conversation_data.conversation_id
+        current_conversation.conversation_id
       );
       if (result.error === -1) {
         console.log("Message not added");
@@ -41,54 +33,51 @@ class SocketService {
       }
       console.log("Message added", result.data);
       global.io
-        .to(conversation_data.conversation_id)
+        .to(current_conversation.conversation_id)
         .emit("receive message", { ...result.data, socketID: socket.id });
+      await this.updateListConversationAtHome(socket.id);
+      if (targetsocket === undefined) {
+        return;
+      }
       if (!isInRoom) {
         global.io.to(targetsocket).emit("notification", message);
       }
+      await this.updateListConversationAtHome(targetsocket);
     });
-    socket.on("room", async (room) => {
-      let current_room;
-      io.sockets.sockets.get(socket.id).rooms.forEach((element) => {
-        if (element !== socket.id) {
-          current_room = element;
-        }
-      });
-      if (current_room === room) {
+    socket.on("room", (conversation) => {
+      if (
+        current_conversation.conversation_id === conversation.conversation_id
+      ) {
         return;
       }
-      if (current_room !== undefined) {
-        socket.leave(current_room);
+      if (current_conversation.conversation_id !== null) {
+        socket.leave(current_conversation.conversation_id);
       }
-      socket.join(room);
-      await set_is_seen(room, global.users[socket.id]);
-      const messages = await get_all_message_of_conversation(room);
-      console.log("messages", messages);
-      if (messages.data !== null) {
-        global.io
-          .to(socket.id)
-          .emit(
-            "load all message in room",
-            messages.data,
-            global.users[socket.id]
-          );
-      }
+      current_conversation = conversation;
+      socket.join(conversation.conversation_id);
     });
     socket.on("disconnect", () => {
       console.log("user disconnected");
-      delete users[socket.id];
+      delete global.users[socket.id];
     });
-    socket.on("get new message of list conversation", async () => {
-      const data = await get_new_message_of_list_conversation(
-        global.users[socket.id]
-      );
-      if (data.data !== null) {
-        global.io
-          .to(socket.id)
-          .emit("get new message of list conversation", data.data);
-      }
-    });
-  }
+  };
+  findTargetSocketId = (userId) => {
+    return Object.keys(global.users).find(
+      (key) => global.users[key] === userId
+    );
+  };
+  updateListConversationAtHome = async (socketID) => {
+    const result = await get_list_conversations_at_home(global.users[socketID]);
+    if (result.data !== null) {
+      global.io
+        .to(socketID)
+        .emit("get list conversations at home", result.data);
+    }
+  };
+  IsInRoom = (socketID, conversation_id) => {
+    const room = io.sockets.adapter.rooms.get(conversation_id);
+    return room ? room.has(socketID) : false;
+  };
   getTokenIo = (data) => {
     return jwt.sign(
       {

@@ -58,6 +58,7 @@ app.use(express.urlencoded({ extended: true }));
 // app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 global.io.use((socket, next) => {
+  console.log("socket.request.headers.cookie", socket.request.headers.cookie);
   const cookies = socket.request.headers.cookie
     ? socket.request.headers.cookie.split("; ")
     : [];

@@ -12,7 +12,6 @@ export const csrfMiddleware = (req, res, next) => {
 
   // Tạo và gửi CSRF token cho các yêu cầu GET
   if (req.method === "GET") {
-    console.log("domain",process.env.DOMAIN)
     const csrfToken = crypto.randomBytes(32).toString("hex");
     res.cookie("_csrf", csrfToken, {
       sameSite: "None",

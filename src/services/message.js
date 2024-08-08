@@ -44,7 +44,7 @@ export const addMessage = (
       reject(error);
     }
   });
-export const get_new_message_of_list_conversation = (user_id) =>
+export const get_list_conversations_at_home = (user_id) =>
   new Promise(async (resolve, reject) => {
     try {
       const data = await sequelize.query(
@@ -85,7 +85,7 @@ export const get_new_message_of_list_conversation = (user_id) =>
       });
       resolve({
         error: data ? 0 : -1,
-        message: data ? "Messages found" : "Error",
+        message: data ? "get list success" : "Error",
         data: data ? decrypted : null,
       });
     } catch (error) {
@@ -114,7 +114,7 @@ export const set_is_seen = (conversation_id, user_id) =>
       reject(error);
     }
   });
-export const get_all_message_of_conversation = (conversation_id) =>
+export const get_all_message_of_conversation = (conversation_id, user_id) =>
   new Promise(async (resolve, reject) => {
     try {
       const data = await Message.findAll({
@@ -130,7 +130,7 @@ export const get_all_message_of_conversation = (conversation_id) =>
       resolve({
         error: data ? 0 : -1,
         message: data ? "Messages found" : "Error",
-        data: data ? decrypted : null,
+        data: data ? { messages: decrypted, user_id } : null,
       });
     } catch (error) {
       console.log(error);
