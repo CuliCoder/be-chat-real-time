@@ -3,8 +3,10 @@ import * as messages from "../controllers/message";
 import * as JWTAction from "../middleware/JWTAction";
 import * as conversation from "../controllers/conversation";
 import * as user from "../controllers/user";
+import { logout } from "../controllers/logout";
 const route = require("express").Router();
 const initAPIRoute = (app) => {
+  route.post("/logout",logout)
   route.use(JWTAction.authenticateToken);
   route.get("/", controllers.gethomepage);
   route.get("/get-list-conversation", conversation.get_list_conversation);
