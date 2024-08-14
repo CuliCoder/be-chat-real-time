@@ -107,7 +107,7 @@ const Login = async (req, res) => {
         httpOnly: true,
         maxAge: Number(process.env.maxAge_accessToken),
         secure: true,
-        sameSite: "None"
+        sameSite: "None",
       })
       .cookie("refresh_token", response.refresh_token, {
         httpOnly: true,
@@ -115,7 +115,7 @@ const Login = async (req, res) => {
           Date.now() + Number(process.env.expires_refreshToken)
         ),
         secure: true,
-        sameSite: "None"
+        sameSite: "None",
       })
       .status(200)
       .json({
@@ -147,7 +147,7 @@ const refreshToken = async (req, res) => {
         httpOnly: true,
         maxAge: Number(process.env.maxAge_accessToken),
         secure: true,
-        sameSite: "None"
+        sameSite: "None",
       })
       .status(200)
       .json({
@@ -163,26 +163,20 @@ const refreshToken = async (req, res) => {
   }
 };
 const isLogin = (req, res) => {
-  let refreshToken = req.cookies["refresh_token"];
-  if (!refreshToken) {
-    return res.status(401).json({
-      error: 1,
-      message: "Refresh Token is missing",
-    });
-  }
+  let userInfo = req.data;
   return res.status(200).json({
     error: 0,
-    message: "Token is exist",
+    userInfo,
   });
 };
-const getTokenIo =  (req, res) => {
+const getTokenIo = (req, res) => {
   try {
-    const result =  SocketService.getTokenIo(req.data);
+    const result = SocketService.getTokenIo(req.data);
     return res
       .cookie("io_token", result, {
         httpOnly: true,
         secure: true,
-        sameSite: "None"
+        sameSite: "None",
       })
       .status(200)
       .json({ message: "Token is exist" });

@@ -9,6 +9,7 @@ const initAPIRoute = (app) => {
   route.post("/logout",logout)
   route.use(JWTAction.authenticateToken);
   route.get("/", controllers.gethomepage);
+  route.get("/is-login", controllers.isLogin);
   route.get("/get-list-conversation", conversation.get_list_conversation);
   route.post("/create-conversation", conversation.create_conversation);
   route.get("/find-user", user.find_user);

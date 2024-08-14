@@ -5,7 +5,7 @@ const authAPIRoute = (app) => {
   AuthRoute.post("/login", controllers.Login);
   AuthRoute.post("/refresh-token", controllers.refreshToken);
   AuthRoute.post("/create-user", controllers.createUser);
-  AuthRoute.get("/is-login", controllers.isLogin);
+  
   AuthRoute.get("/get-csrf", auth.get_csrf_token);
   return app.use("/api/v1/", AuthRoute);
 };
