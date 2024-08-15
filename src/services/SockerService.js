@@ -1,16 +1,24 @@
 import jwt from "jsonwebtoken";
 import { addMessage, get_list_conversations_at_home } from "./message";
+import e from "express";
 global.users = {};
 class SocketService {
   connection = (socket) => {
+    //check user id exist
+    const existingUser = Object.keys(global.users).filter(
+      (key) => global.users[key] === global.users[socket.id]
+    );
+    if (existingUser.length > 1) {
+      console.log("User already connected", existingUser);
+      existingUser.forEach((value) => {
+        global.io.to(value).emit("account logged in another device");
+      });
+    }
     let current_conversation = {
       conversation_id: null,
       user_two: null,
     };
     console.log("a user connected");
-    socket.on("disconnect", () => {
-      console.log("user disconnected");
-    });
     socket.on("send message", async (message) => {
       console.log("message: " + current_conversation.conversation_id);
       const targetsocket = this.findTargetSocketId(
