@@ -1,7 +1,7 @@
 import jwt, { TokenExpiredError } from "jsonwebtoken";
 require("dotenv").config();
 
-const authenticateToken = (req, res, next) => {
+export const authenticateToken = (req, res, next) => {
   const token = req.cookies["access_token"];
   if (token == null)
   {
@@ -21,4 +21,4 @@ const authenticateToken = (req, res, next) => {
     next();
   });
 };
-module.exports = { authenticateToken };
+

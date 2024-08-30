@@ -2,19 +2,14 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
-import { createServer } from "mysql2";
-const session = require('express-session');
 const initRoute = require("./routes/web");
 const initAPIRoute = require("./routes/api");
 const authAPIRoute = require("./routes/auth");
 const configViewEngine = require("./config/ViewEngine");
-const bodyParser = require("body-parser");
 const { csrfMiddleware } = require("./middleware/csrf_token");
-// const { Server } = require("socket.io");
 const SocketService = require("./services/SockerService");
 const {connection} = require("./config/connection")
 connection()
-const cookie = require("cookie");
 require("dotenv").config();
 const port = process.env.PORT||8080;
 const app = express();
@@ -27,15 +22,7 @@ const io = require("socket.io")(http, {
   },
 });
 global.io = io;
-
-// const server = createServer(app);
-// global.io = new Server(server, {
-//   connectionStateRecovery: {},
-//   cors: {
-//     origin: "*",
-//   },
-// });
-
+app.use(express.static("Profile"));
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
@@ -43,20 +30,10 @@ app.use(
     credentials: true,
   })
 );
-// app.use(session({
-//   secret: process.env.session_secret, // Thay đổi thành một chuỗi bí mật
-//   resave: false,
-//   saveUninitialized: true,
-//   cookie: {
-//     secure: false, // Chỉ sử dụng với HTTPS
-//     sameSite: 'None' // Cho phép gửi session ID trong các request cross-origin
-//   }
-// }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+// middleware xác thực token socket
 global.io.use((socket, next) => {
   console.log("socket.request.headers.cookie", socket.request.headers.cookie);
   const cookies = socket.request.headers.cookie

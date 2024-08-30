@@ -1,13 +1,15 @@
 import { sequelize } from "../config/connection";
 import { DataTypes, Op } from "sequelize";
 import bcrypt from "bcrypt";
-// import db from "../models/index";
 import jwt from "jsonwebtoken";
 require("dotenv").config();
-
+const saltRounds = 10;
+const hashPassword = (password) => {
+  return bcrypt.hashSync(password, saltRounds);
+};
 const User = require("../models/user")(sequelize, DataTypes);
 
-const Login = async (account, password) =>
+export const Login = async (account, password) =>
   new Promise(async (resolve, reject) => {
     try {
       let result = await User.findOne({
@@ -15,7 +17,6 @@ const Login = async (account, password) =>
         raw: true,
       });
       const isChecked = result && bcrypt.compareSync(password, result.password);
-      console.log("result:", result);
       const token = isChecked
         ? jwt.sign(
             {
@@ -42,27 +43,18 @@ const Login = async (account, password) =>
         : null;
       resolve({
         error: token ? 0 : -1,
+        id: result.id,
         message: token
           ? { success: "Login success" }
           : { error: "Incorrect email or phone number or password" },
         access_token: token ? "Bearer " + token : null,
         refresh_token: refreshtoken,
       });
-      if (refreshtoken) {
-        await User.update(
-          { refreshToken: refreshtoken },
-          {
-            where: {
-              id: result.id,
-            },
-          }
-        );
-      }
     } catch (error) {
       reject(error);
     }
   });
-const refreshToken = async (refresh_token) =>
+export const refreshToken = async (refresh_token) =>
   new Promise(async (resolve, reject) => {
     try {
       const result = await User.findOne({
@@ -85,12 +77,30 @@ const refreshToken = async (refresh_token) =>
                 process.env.JWT_SECRET,
                 { expiresIn: process.env.expiresIn_accessToken }
               );
+              const newRefreshToken = jwt.sign(
+                {
+                  id: data.id,
+                  fullname: data.fullname,
+                  email: data.email,
+                  tel: data.tel,
+                },
+                process.env.refreshToken_SECRET,
+                { expiresIn: process.env.expiresIn_refreshToken }
+              );
               resolve({
-                error: newToken ? 0 : -1,
-                message: newToken
-                  ? "Refresh token success"
-                  : "Refresh token fail",
-                access_token: newToken ? "Bearer " + newToken : null,
+                error: newToken && newRefreshToken ? 0 : -1,
+                id: data.id,
+                message:
+                  newToken && newRefreshToken
+                    ? "Refresh token success"
+                    : "Refresh token fail",
+                token:
+                  newToken && newRefreshToken
+                    ? {
+                        access_token: "Bearer " + newToken,
+                        refreshToken: newRefreshToken,
+                      }
+                    : null,
               });
             }
           }
@@ -102,4 +112,70 @@ const refreshToken = async (refresh_token) =>
       reject(error);
     }
   });
-module.exports = { Login, refreshToken };
+export const createUser = async (
+  firstname,
+  surname,
+  email,
+  tel,
+  password,
+  gender,
+  DOB
+) => {
+  try {
+    let fullname = firstname + " " + surname;
+    console.log(firstname, surname, fullname);
+    const [user, created] = await User.findOrCreate({
+      where: {
+        email,
+        tel,
+      },
+      defaults: {
+        fullname,
+        email,
+        tel,
+        password: hashPassword(password),
+        gender,
+        DOB,
+        refreshToken: null,
+      },
+    });
+    return created;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+export const getTokenIo = (data) => {
+  return jwt.sign(
+    {
+      id: data.id,
+      fullname: data.fullname,
+      email: data.email,
+      tel: data.tel,
+    },
+    process.env.io_jwt_secret
+  );
+};
+export const updateRefreshToken = (user_id, refreshtoken) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const result = await User.update(
+        { refreshToken: refreshtoken },
+        {
+          where: {
+            id: user_id,
+          },
+        }
+      );
+      resolve({
+        error: result[0] === 1 ? 0 : -1,
+        message:
+          result[0] === 1
+            ? "update refreshToken success"
+            : "update refreshToken failed",
+      });
+    } catch (error) {
+      console.log(error);
+      reject(error);
+    }
+  });

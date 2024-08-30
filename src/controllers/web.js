@@ -1,4 +1,3 @@
-import * as services from "../services/user"
 const gethomepage = (req, res) => {
   return res.render("home.ejs");
 };

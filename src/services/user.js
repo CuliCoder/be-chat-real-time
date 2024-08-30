@@ -1,19 +1,6 @@
 import { sequelize } from "../config/connection";
 import { DataTypes, Op } from "sequelize";
-import bcrypt from "bcrypt";
 const User = require("../models/user")(sequelize, DataTypes);
-const saltRounds = 10;
-export const getList = async () => {
-  try {
-    const users = await User.findAll();
-    return users;
-  } catch (error) {
-    console.error("Lỗi khi lấy danh sách người dùng:", error);
-  }
-};
-const hashPassword = (password) => {
-  return bcrypt.hashSync(password, saltRounds);
-};
 export const createUser = async (
   firstname,
   surname,
@@ -59,7 +46,7 @@ export const find_user = (id, text) =>
             { tel: { [Op.like]: `%${text}%` } },
           ],
         },
-        attributes: ["id", "fullname", "email", "tel", "gender"],
+        attributes: ["id", "fullname", "gender", "avatar"],
         raw: true,
       });
       resolve({
@@ -78,6 +65,7 @@ export const get_user_by_id = (id) =>
         where: {
           id: id,
         },
+        attributes: ["id", "fullname", "gender", "avatar"],
         raw: true,
       });
       resolve({
@@ -89,3 +77,71 @@ export const get_user_by_id = (id) =>
       reject(error);
     }
   });
+export const get_my_profile = (id) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const user = await User.findOne({
+        where: {
+          id: id,
+        },
+        attributes: [
+          "id",
+          "fullname",
+          "email",
+          "tel",
+          "DOB",
+          "gender",
+          "avatar",
+        ],
+        raw: true,
+      });
+      resolve({
+        error: user ? 0 : -1,
+        message: user ? "User found" : "User not found",
+        data: user,
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+export const uploadAvatar = (id, avatar) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const user = await User.update(
+        { avatar },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      resolve({
+        error: user[0] === 1 ? 0 : -1,
+        message: user[0] ? "update avatar success" : "update avatar failed",
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+export const updateProfile = (id, fullname, gender, DOB) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const user = await User.update(
+        { fullname, gender, DOB },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+      resolve({
+        error: user[0] === 1 ? 0 : -1,
+        message: user[0]
+          ? { success: "update information success" }
+          : { error: "update information failed" },
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+

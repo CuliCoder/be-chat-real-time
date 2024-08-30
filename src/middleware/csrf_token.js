@@ -3,7 +3,9 @@ require("dotenv").config();
 export const csrfMiddleware = (req, res, next) => {
   // Xác thực yêu cầu POST, PUT, DELETE
   if (["POST", "PUT", "DELETE"].includes(req.method)) {
-    const tokenFromClient = req.headers["x-csrf-token"] || req.body._csrf;
+    const tokenFromClient =
+      req.headers["x-csrf-token"] || req.body._csrf || req.FormData;
+    console.log("token here",tokenFromClient);
     const tokenFromCookie = req.cookies._csrf;
     if (!tokenFromCookie || tokenFromClient !== tokenFromCookie) {
       return res.status(403).send("Invalid CSRF token");

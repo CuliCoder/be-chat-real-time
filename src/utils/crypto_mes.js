@@ -1,4 +1,5 @@
 import crypto from "crypto";
+const saltRounds = 10;
 require("dotenv").config();
 export const encrypted_message = (message) => {
   const iv = crypto.randomBytes(16);
