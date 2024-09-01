@@ -1,4 +1,3 @@
-import jwt from "jsonwebtoken";
 import { get_list_conversations_at_home_socket } from "../controllers/conversation";
 import { send_message } from "../controllers/message";
 import { update_last_message } from "../controllers/conversation";

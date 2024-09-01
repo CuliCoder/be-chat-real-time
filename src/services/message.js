@@ -41,6 +41,7 @@ export const set_is_seen = (conversation_id, user_id) =>
         {
           where: {
             conversation_id,
+            is_seen: false,
             [Op.not]: [{ user_id }],
           },
         }
